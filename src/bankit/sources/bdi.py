@@ -14,7 +14,6 @@ from __future__ import annotations
 import csv
 import io
 import re
-import unicodedata
 import zipfile
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -24,7 +23,7 @@ from ..errors import NotFound, Rejected, SourceError, UsageError
 from ..model import Observation, SearchHit, SeriesInfo
 from ..periods import normalise_frequency, period_from_date
 from ..transport import Response
-from .base import Source, in_range
+from .base import Source, fold, in_range
 
 BASE_URL = "https://a2a.bancaditalia.it/infostat/dataservices/export"
 
@@ -88,11 +87,6 @@ def _parse_value(text: str) -> float | None:
 def _parse_date(text: str) -> date:
     y, m, d = text.strip().replace("-", "/").split("/")
     return date(int(y), int(m), int(d))
-
-
-def _fold(text: str) -> str:
-    """Lower-case, accent-free text for matching."""
-    return "".join(c for c in unicodedata.normalize("NFKD", text.lower()) if not unicodedata.combining(c))
 
 
 def publication_of(key: str) -> str:
@@ -236,7 +230,7 @@ class BdiSource(Source):
         )
 
     def search(self, query: str, scope: Sequence[str] | None = None, limit: int = 50) -> list[SearchHit]:
-        terms = _fold(query).split()
+        terms = fold(query).split()
         if not terms:
             raise UsageError("empty search query")
         explicit = scope is not None
@@ -251,7 +245,7 @@ class BdiSource(Source):
                 self.warnings.append({"warning": "publication_skipped", "publication": pub, "detail": str(e)})
                 continue
             for key, title in titles.items():
-                haystack = _fold(f"{key} {title}")
+                haystack = fold(f"{key} {title}")
                 if all(t in haystack for t in terms):
                     hits.append(SearchHit(self.name, key, title, {"publication": pub}))
                     if len(hits) >= limit:

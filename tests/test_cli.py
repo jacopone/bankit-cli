@@ -101,6 +101,9 @@ def test_route():
     assert route("MIR.M.IT.B") == ("ecb", "MIR.M.IT.B")
     assert route("ecb:MIR.M.IT.B") == ("ecb", "MIR.M.IT.B")
     assert route("bdi:" + LOANS_NFC) == ("bdi", LOANS_NFC)
+    assert route("WS_CBPOL/M.IT") == ("bis", "WS_CBPOL/M.IT")
+    assert route("ws_cbpol.M.IT") == ("bis", "ws_cbpol.M.IT")
+    assert route("bis:WS_CBPOL/M.IT") == ("bis", "WS_CBPOL/M.IT")
 
 
 def test_untrusted_certificate_hints_at_ssl_cert_file(monkeypatch):
@@ -117,3 +120,12 @@ def test_untrusted_certificate_hints_at_ssl_cert_file(monkeypatch):
     with pytest.raises(SourceError) as e:
         HttpTransport().fetch("https://example.invalid/x")
     assert "SSL_CERT_FILE" in str(e.value)
+
+
+def test_bis_get_and_search_through_the_cli(run):
+    code, out, err = run("get", "WS_CBPOL/M.XM", "--format", "jsonl")
+    assert code == 0, err
+    first = json.loads(out.splitlines()[0])
+    assert first["source"] == "bis" and first["series_key"] == "WS_CBPOL.M.XM"
+    code, out, _ = run("search", "policy", "--source", "bis")
+    assert code == 0 and out.splitlines()[1].startswith("bis,WS_CBPOL,")

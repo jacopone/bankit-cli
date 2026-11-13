@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import unicodedata
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
@@ -26,6 +27,11 @@ class Source(ABC):
 
     def search(self, query: str, scope: Sequence[str] | None = None, limit: int = 50) -> list[SearchHit]:
         raise Unsupported(f"source '{self.name}' does not support search", source=self.name)
+
+
+def fold(text: str) -> str:
+    """Lower-case, accent-free text for matching."""
+    return "".join(c for c in unicodedata.normalize("NFKD", text.lower()) if not unicodedata.combining(c))
 
 
 def in_range(period_or_date: str, start: str | None, end: str | None) -> bool:

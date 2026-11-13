@@ -16,7 +16,8 @@ def test_period_from_date(freq, expected):
 @pytest.mark.parametrize(
     ("label", "expected"),
     [("2026-02", date(2026, 2, 28)), ("2024-02", date(2024, 2, 29)), ("2026-Q2", date(2026, 6, 30)),
-     ("2026-S1", date(2026, 6, 30)), ("2025", date(2025, 12, 31)), ("2026-09-30", date(2026, 9, 30))],
+     ("2026-S1", date(2026, 6, 30)), ("2025", date(2025, 12, 31)), ("2026-09-30", date(2026, 9, 30)),
+     ("2026-W05", date(2026, 2, 1)), ("2026-W53", date(2027, 1, 3)), ("2025-W01", date(2025, 1, 5))],
 )
 def test_end_date_of_period(label, expected):
     assert end_date_of_period(label) == expected

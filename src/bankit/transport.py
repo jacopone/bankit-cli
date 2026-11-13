@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import ssl
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -52,7 +53,10 @@ class HttpTransport:
                 raise NotFound(f"not found at source: {url}", url=url, status=404) from None
             return Response(url, e.code, e.headers.get("Content-Type", "") if e.headers else "", body, _now())
         except (urllib.error.URLError, TimeoutError, OSError) as e:
-            raise SourceError(f"network error: {e}", url=url) from None
+            hint = ""
+            if isinstance(getattr(e, "reason", None), ssl.SSLCertVerificationError):
+                hint = " (TLS certificate not trusted: set SSL_CERT_FILE to a CA bundle, see the README)"
+            raise SourceError(f"network error: {e}{hint}", url=url) from None
 
 
 def default_cache_dir() -> Path:

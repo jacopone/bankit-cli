@@ -101,3 +101,19 @@ def test_route():
     assert route("MIR.M.IT.B") == ("ecb", "MIR.M.IT.B")
     assert route("ecb:MIR.M.IT.B") == ("ecb", "MIR.M.IT.B")
     assert route("bdi:" + LOANS_NFC) == ("bdi", LOANS_NFC)
+
+
+def test_untrusted_certificate_hints_at_ssl_cert_file(monkeypatch):
+    import ssl  # noqa: PLC0415
+    import urllib.error  # noqa: PLC0415
+
+    from bankit.errors import SourceError  # noqa: PLC0415
+    from bankit.transport import HttpTransport  # noqa: PLC0415
+
+    def refuse(*args, **kwargs):
+        raise urllib.error.URLError(ssl.SSLCertVerificationError("self-signed certificate in certificate chain"))
+
+    monkeypatch.setattr("urllib.request.urlopen", refuse)
+    with pytest.raises(SourceError) as e:
+        HttpTransport().fetch("https://example.invalid/x")
+    assert "SSL_CERT_FILE" in str(e.value)

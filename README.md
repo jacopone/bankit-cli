@@ -29,6 +29,15 @@ pip install "bankit-cli[pandas] @ git+https://github.com/jacopone/bankit-cli"   
 
 Check it: `bankit --version`. Behind a corporate proxy, set `HTTPS_PROXY` as for any Python tool.
 
+If a command fails with `CERTIFICATE_VERIFY_FAILED`, Python does not trust the certificates it sees: the network
+inspects TLS (common on company networks), or this Python has no CA bundle. Point it to a bundle that contains the
+right CA (on a company network, the one that includes the company CA):
+
+```sh
+export SSL_CERT_FILE=/path/to/ca-bundle.crt        # Linux, macOS; often /etc/ssl/certs/ca-certificates.crt
+$env:SSL_CERT_FILE = "C:\path\to\ca-bundle.crt"    # Windows PowerShell
+```
+
 ## First steps
 
 ```sh
@@ -95,6 +104,24 @@ df = bankit.to_pandas(rows)          # requires the pandas extra
 Implement `bankit.sources.base.Source` (`search`, `describe`, `get`) returning the common
 `Observation` and `SeriesInfo` types, and register it in `bankit/sources/__init__.py`.
 Source-specific parsing stays inside the adapter.
+
+## Contributing
+
+Contributions are welcome. The project starts from Banca d'Italia and the ECB and aims to grow to
+the statistics of other European institutions: national central banks, national statistical
+institutes, Eurostat and other European and international bodies. Each one is one adapter behind
+the same interface and the same output schema, so series from different institutions join on
+`period`. Adapters for new sources, support for more of the existing ones, and fixes are all
+useful.
+
+For a new source:
+- check its terms of use and say in the pull request what they allow;
+- keep test fixtures synthetic, or a small unmodified extract whose licence allows redistribution,
+  with the origin and the terms recorded in `tests/fixtures/SOURCES.txt`;
+- keep the tests offline (the default run blocks the network) and put checks against the live
+  service behind the `live` marker.
+
+Open an issue to discuss a source before a large change.
 
 ## Data terms
 

@@ -38,7 +38,7 @@ def period_from_date(d: date, frequency: str | None) -> str | None:
 
 
 _PERIOD_RE = re.compile(
-    r"^(?P<y>\d{4})(?:-(?:(?P<m>\d{2})(?:-(?P<d>\d{2}))?|Q(?P<q>[1-4])|S(?P<s>[12])|W\d{2}))?$"
+    r"^(?P<y>\d{4})(?:-(?:(?P<m>\d{2})(?:-(?P<d>\d{2}))?|Q(?P<q>[1-4])|S(?P<s>[12])|W(?P<w>\d{2})))?$"
 )
 
 
@@ -50,6 +50,11 @@ def end_date_of_period(label: str) -> date:
     y = int(m["y"])
     if m["d"]:
         return date(y, int(m["m"]), int(m["d"]))
+    if m["w"]:  # ISO week: ends on its Sunday
+        try:
+            return date.fromisocalendar(y, int(m["w"]), 7)
+        except ValueError:
+            raise ValueError(f"unrecognised period: {label!r}") from None
     if m["m"]:
         month = int(m["m"])
     elif m["q"]:

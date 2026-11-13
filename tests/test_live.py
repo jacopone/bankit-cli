@@ -23,3 +23,11 @@ def test_bdi_and_ecb_agree_up_to_rounding():
     common = set(bdi) & set(ecb)
     assert len(common) >= 12
     assert max(abs(bdi[p] - ecb[p]) for p in common) <= 0.005 + 1e-9
+
+
+def test_bis_policy_rates_are_served():
+    from bankit.sources.bis import BisSource  # noqa: PLC0415
+
+    obs = BisSource(HttpTransport()).get("WS_CBPOL/M.XM", start="2024-01")
+    assert obs and {o.series_key for o in obs} == {"WS_CBPOL.M.XM"}
+    assert all(o.unit and o.title for o in obs)

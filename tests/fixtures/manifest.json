@@ -54,5 +54,40 @@
     "content_type": "text/html",
     "fetched_at": "2026-11-13T00:00:00+00:00",
     "synthetic": true
+  },
+  "https://stats.bis.org/api/v2/structure/dataflow/BIS/*/~?format=sdmx-json": {
+    "file": "bis_dataflows.json",
+    "status": 200,
+    "content_type": "application/json",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://stats.bis.org/api/v2/structure/dataflow/BIS/WS_CBPOL/~?references=datastructure&format=sdmx-json": {
+    "file": "bis_WS_CBPOL_structure.json",
+    "status": 200,
+    "content_type": "application/json",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://stats.bis.org/api/v2/structure/codelist/BIS/CL_BIS_UNIT/~?format=sdmx-json": {
+    "file": "bis_units.json",
+    "status": 200,
+    "content_type": "application/json",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CBPOL/~/M.XM+IT?format=csv": {
+    "file": "bis_WS_CBPOL_XM_IT.csv",
+    "status": 200,
+    "content_type": "text/csv",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CBPOL/~/M.XM?format=csv": {
+    "file": "bis_WS_CBPOL_XM.csv",
+    "status": 200,
+    "content_type": "text/csv",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
   }
 }

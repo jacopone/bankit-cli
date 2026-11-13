@@ -1,0 +1,58 @@
+{
+  "https://data-api.ecb.europa.eu/service/data/MIR/M.IT.B.A2A.A.R.A+0+1.2240.EUR.N?format=csvdata&startPeriod=2003-01": {
+    "file": "ecb_MIR_IT_loans_nfc.csv",
+    "status": 200,
+    "content_type": "text/csv",
+    "fetched_at": "2026-10-23T16:38:05+00:00",
+    "kept_members": null
+  },
+  "https://a2a.bancaditalia.it/infostat/dataservices/export/IT/CSV/DATA/PUBLICATION/BANKITALIA/DIFF/BAM": {
+    "file": "bdi_BAM_DATA_IT.zip",
+    "status": 200,
+    "content_type": "application/zip",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://a2a.bancaditalia.it/infostat/dataservices/export/IT/CSV/DATA/PUBLICATION/BANKITALIA/DIFF/MFN": {
+    "file": "bdi_MFN_DATA_IT.zip",
+    "status": 200,
+    "content_type": "application/zip",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://a2a.bancaditalia.it/infostat/dataservices/export/EN/CSV/LEGEND/PUBLICATION/BANKITALIA/DIFF/BAM": {
+    "file": "bdi_BAM_LEGEND_EN.zip",
+    "status": 200,
+    "content_type": "application/zip",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://a2a.bancaditalia.it/infostat/dataservices/export/EN/CSV/LEGEND/PUBLICATION/BANKITALIA/DIFF/MFN": {
+    "file": "bdi_MFN_LEGEND_EN.zip",
+    "status": 200,
+    "content_type": "application/zip",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://a2a.bancaditalia.it/infostat/dataservices/export/IT/CSV/LEGEND/PUBLICATION/BANKITALIA/DIFF/MFN": {
+    "file": "bdi_MFN_LEGEND_IT.zip",
+    "status": 200,
+    "content_type": "application/zip",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://a2a.bancaditalia.it/infostat/dataservices/export/IT/SDMXv21/DATAFLOW/BANKITALIA/DIFF": {
+    "file": "bdi_rejected.html",
+    "status": 200,
+    "content_type": "text/html",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  },
+  "https://a2a.bancaditalia.it/infostat/dataservices/export/IT/CSV/DATA/PUBLICATION/BANKITALIA/DIFF/NOSUCHPUB": {
+    "file": "bdi_invalid.html",
+    "status": 400,
+    "content_type": "text/html",
+    "fetched_at": "2026-11-13T00:00:00+00:00",
+    "synthetic": true
+  }
+}

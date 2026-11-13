@@ -1,0 +1,14 @@
+# Local-only reference documents
+*.docx
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+dist/
+build/
+*.egg-info/
+
+# Claude Code worktrees
+.claude/worktrees/

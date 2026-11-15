@@ -36,9 +36,9 @@ def test_committed_bdi_fixtures_match_the_generator():
         assert _flatten((FIXTURES / name).read_bytes(), name) == _flatten(content, name), name
 
 
-def test_every_bdi_fixture_is_listed_as_synthetic():
+def test_every_bdi_and_bis_fixture_is_listed_as_synthetic():
     manifest = json.loads((FIXTURES / "manifest.json").read_text())
-    bdi = {e["file"]: e for e in manifest.values() if e["file"].startswith("bdi_")}
-    assert bdi and all(e.get("synthetic") is True for e in bdi.values())
-    on_disk = {p.name for p in FIXTURES.glob("bdi_*")}
-    assert on_disk == set(bdi)
+    for prefix in ("bdi_", "bis_"):
+        listed = {e["file"]: e for e in manifest.values() if e["file"].startswith(prefix)}
+        assert listed and all(e.get("synthetic") is True for e in listed.values()), prefix
+        assert {p.name for p in FIXTURES.glob(f"{prefix}*")} == set(listed), prefix

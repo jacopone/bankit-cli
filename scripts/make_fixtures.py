@@ -1,4 +1,4 @@
-"""Generate the synthetic Banca d'Italia (BdI) test fixtures.
+"""Generate the synthetic Banca d'Italia (BdI) and BIS test fixtures.
 
 The files have the layout of the BDS A2A export (zips of ';'-separated, fully quoted CSV, decimal
 comma, dates as YYYY/MM/DD, newest row first) but every value and every title is invented.
@@ -6,8 +6,10 @@ No Banca d'Italia data is stored in this repository's tests. For the BAM series 
 values are the ECB fixture value plus a small deterministic offset (at most 0.004), so the BdI-vs-ECB
 consistency test keeps its meaning; earlier months and the MFN series come from a seeded generator.
 
-Output is deterministic. Writes tests/fixtures/bdi_*.zip, bdi_rejected.html, bdi_invalid.html and the
-BdI entries of manifest.json (ECB entries, recorded by record_fixtures.py, are kept as they are).
+The bis_* files reproduce the shape of the BIS SDMX REST API answers (dataflow list, data structure,
+unit codelist, csv data) with invented names and values.
+
+Output is deterministic. Writes tests/fixtures/bdi_*, bis_* and the BdI and BIS entries of manifest.json (ECB entries, recorded by record_fixtures.py, are kept as they are).
 
 Usage: python scripts/make_fixtures.py [output_dir]
 """
@@ -27,7 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from bankit.sources import bdi  # noqa: E402
+from bankit.sources import bdi, bis  # noqa: E402
 
 DEFAULT_OUT = ROOT / "tests" / "fixtures"
 FETCHED_AT = "2026-11-13T00:00:00+00:00"
@@ -54,6 +56,57 @@ MFN_TITLES = {
         MFN_KEYS[1]: "Serie di prova (dati sintetici): rendimento BTP decennale",
     },
 }
+
+
+BIS_FLOWS = {
+    "WS_CBPOL": "Synthetic test dataflow: central bank policy rates",
+    "WS_EER": "Synthetic test dataflow: effective exchange rates",
+    "WS_LONG_CPI": "Synthetic test dataflow: consumer prices",
+}
+BIS_COLUMNS = [
+    "FREQ", "REF_AREA", "UNIT_MEASURE", "UNIT_MULT", "TIME_FORMAT", "COMPILATION", "DECIMALS",
+    "SOURCE_REF", "SUPP_INFO_BREAKS", "TITLE", "TIME_PERIOD", "OBS_VALUE", "OBS_STATUS", "OBS_CONF", "OBS_PRE_BREAK",
+]
+BIS_AREAS = {"XM": "Euro area", "IT": "Italy"}
+
+
+def _json(obj: object) -> bytes:
+    return (json.dumps(obj, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8")
+
+
+def _bis_csv(areas: list[str]) -> bytes:
+    months = _month_ends(date(2024, 1, 1), date(2026, 8, 1))
+    buf = io.StringIO()
+    w = csv.writer(buf, lineterminator="\n")
+    w.writerow(BIS_COLUMNS)
+    for area in areas:
+        level = 3.0 if area == "XM" else 2.4
+        for i, d in enumerate(months):
+            level = max(level - 0.25 * (i % 7 == 6), 0.5)  # a step down every seventh month
+            value = "" if (area == "IT" and i == 3) else f"{level:g}"  # one missing observation
+            w.writerow([
+                "M", area, "368", "0", "", f"Synthetic compilation note, {area}", "4", "Synthetic test source", "",
+                f" Synthetic test series: policy rate, {BIS_AREAS[area]}, monthly",
+                d.strftime("%Y-%m"), value, "A" if value else "M", "F", "",
+            ])
+    return buf.getvalue().encode("utf-8")
+
+
+def bis_files() -> dict[str, bytes]:
+    flows = [{"id": k, "names": {"en": v}, "version": "1.0"} for k, v in BIS_FLOWS.items()]
+    dims = [{"id": "FREQ", "position": 1}, {"id": "REF_AREA", "position": 2}]
+    structure = {"data": {"dataflows": [flows[0]], "dataStructures": [
+        {"id": "BIS_CBPOL", "dataStructureComponents": {"dimensionList": {"dimensions": dims}}}]}}
+    units = {"data": {"codelists": [{"id": "CL_BIS_UNIT", "codes": [
+        {"id": "368", "names": {"en": "Synthetic unit: per cent per year"}},
+        {"id": "770", "names": {"en": "Synthetic unit: percentage of GDP"}}]}]}}
+    return {
+        "bis_dataflows.json": _json({"data": {"dataflows": flows}}),
+        "bis_WS_CBPOL_structure.json": _json(structure),
+        "bis_units.json": _json(units),
+        "bis_WS_CBPOL_XM_IT.csv": _bis_csv(["XM", "IT"]),
+        "bis_WS_CBPOL_XM.csv": _bis_csv(["XM"]),
+    }
 
 
 def _csv(rows: list[list[str]]) -> bytes:
@@ -169,6 +222,7 @@ def build(ecb_file: Path) -> dict[str, bytes]:
             b"Please consult with your administrator.<br><br>Your support ID is: 1234567890123456789<br><br></body></html>\n"
         ),
         "bdi_invalid.html": b"<html><head><title>Bad request (synthetic test page)</title></head><body><h2>Bad request</h2></body></html>\n",
+        **bis_files(),
     }
 
 
@@ -185,6 +239,11 @@ def manifest_entries() -> dict[str, dict[str, object]]:
         bdi.export_url("IT", "LEGEND", "PUBLICATION", "MFN"): entry("bdi_MFN_LEGEND_IT.zip", 200, zip_type),
         f"{bdi.BASE_URL}/IT/SDMXv21/DATAFLOW/BANKITALIA/DIFF": entry("bdi_rejected.html", 200, "text/html"),
         bdi.export_url("IT", "DATA", "PUBLICATION", "NOSUCHPUB"): entry("bdi_invalid.html", 400, "text/html"),
+        bis.dataflows_url(): entry("bis_dataflows.json", 200, "application/json"),
+        bis.structure_url("WS_CBPOL"): entry("bis_WS_CBPOL_structure.json", 200, "application/json"),
+        bis.unit_codelist_url(): entry("bis_units.json", 200, "application/json"),
+        bis.data_url("WS_CBPOL/M.XM+IT"): entry("bis_WS_CBPOL_XM_IT.csv", 200, "text/csv"),
+        bis.data_url("WS_CBPOL/M.XM"): entry("bis_WS_CBPOL_XM.csv", 200, "text/csv"),
     }
 
 

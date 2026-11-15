@@ -17,10 +17,11 @@ from .transport import CachingTransport
 
 
 DISCLAIMER = (
-    "Unofficial: not affiliated with Banca d'Italia or the ECB. The data belong to Banca d'Italia and the ECB\n"
+    "Unofficial: not affiliated with Banca d'Italia, the ECB or the BIS. The data belong to their publishers\n"
     "and remain subject to their terms of use:\n"
     "  https://www.bancaditalia.it/statistiche/condizioni-utilizzo/index.html\n"
-    "  https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html"
+    "  https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html\n"
+    "  https://data.bis.org/help/legal"
 )
 
 
@@ -40,7 +41,7 @@ def _parser() -> argparse.ArgumentParser:
 
     p = _Parser(
         prog="bankit",
-        description="Banca d'Italia statistics (BDS) and ECB series, one schema. Unofficial client.",
+        description="Banca d'Italia (BDS), ECB and BIS statistics, one schema. Unofficial client.",
         epilog=DISCLAIMER + "\nExit codes: 0 ok, 2 usage, 3 unsupported, 4 not found, 5 source/network error, 6 offline cache miss.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -50,7 +51,7 @@ def _parser() -> argparse.ArgumentParser:
     s = sub.add_parser("search", parents=[common], help="find series by words in their titles")
     s.add_argument("query")
     s.add_argument("--publication", action="append", dest="scope", metavar="CODE",
-                   help="limit to a BdI publication (repeatable), e.g. BAM, MFN")
+                   help="limit to a BdI publication or a BIS dataflow (repeatable), e.g. BAM, MFN, WS_CBPOL")
     s.add_argument("--limit", type=int, default=50)
     s.add_argument("--format", choices=["csv", "json", "jsonl"], default="csv")
 

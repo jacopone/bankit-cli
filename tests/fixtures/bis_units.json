@@ -1,0 +1,23 @@
+{
+  "data": {
+    "codelists": [
+      {
+        "codes": [
+          {
+            "id": "368",
+            "names": {
+              "en": "Synthetic unit: per cent per year"
+            }
+          },
+          {
+            "id": "770",
+            "names": {
+              "en": "Synthetic unit: percentage of GDP"
+            }
+          }
+        ],
+        "id": "CL_BIS_UNIT"
+      }
+    ]
+  }
+}

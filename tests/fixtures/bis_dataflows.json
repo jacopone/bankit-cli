@@ -1,0 +1,27 @@
+{
+  "data": {
+    "dataflows": [
+      {
+        "id": "WS_CBPOL",
+        "names": {
+          "en": "Synthetic test dataflow: central bank policy rates"
+        },
+        "version": "1.0"
+      },
+      {
+        "id": "WS_EER",
+        "names": {
+          "en": "Synthetic test dataflow: effective exchange rates"
+        },
+        "version": "1.0"
+      },
+      {
+        "id": "WS_LONG_CPI",
+        "names": {
+          "en": "Synthetic test dataflow: consumer prices"
+        },
+        "version": "1.0"
+      }
+    ]
+  }
+}

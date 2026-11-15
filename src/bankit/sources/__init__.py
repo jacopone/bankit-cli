@@ -6,9 +6,10 @@ from ..errors import UsageError
 from ..transport import Transport
 from .base import Source
 from .bdi import BdiSource
+from .bis import BisSource
 from .ecb import EcbSource
 
-SOURCES: dict[str, type[Source]] = {"bdi": BdiSource, "ecb": EcbSource}
+SOURCES: dict[str, type[Source]] = {"bdi": BdiSource, "ecb": EcbSource, "bis": BisSource}
 
 
 def make_source(name: str, transport: Transport, lang: str = "en") -> Source:
@@ -19,7 +20,7 @@ def make_source(name: str, transport: Transport, lang: str = "en") -> Source:
 
 
 def route(key: str, source: str | None = None) -> tuple[str, str]:
-    """Return (source name, bare key). An explicit ``bdi:``/``ecb:`` prefix wins over inference."""
+    """Return (source name, bare key). An explicit ``bdi:``/``ecb:``/``bis:`` prefix wins over inference."""
     prefix, sep, rest = key.partition(":")
     if sep and prefix in SOURCES:
         if source and source != prefix:
@@ -27,8 +28,10 @@ def route(key: str, source: str | None = None) -> tuple[str, str]:
         return prefix, rest
     if source:
         return source, key
-    # BdI keys start with PUBLICATION_FAMILY (an underscore before the first dot); ECB keys
-    # are FLOW/KEY or FLOW.KEY with a plain flow id.
+    # BIS dataflow ids start with WS_ (WS_CBPOL/M.IT). BdI keys start with PUBLICATION_FAMILY
+    # (an underscore before the first dot); ECB keys are FLOW/KEY or FLOW.KEY with a plain flow id.
+    if key.upper().startswith("WS_"):
+        return "bis", key
     if "/" in key or "_" not in key.split(".", 1)[0]:
         return "ecb", key
     return "bdi", key

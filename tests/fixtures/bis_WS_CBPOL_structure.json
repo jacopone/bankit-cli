@@ -1,0 +1,32 @@
+{
+  "data": {
+    "dataStructures": [
+      {
+        "dataStructureComponents": {
+          "dimensionList": {
+            "dimensions": [
+              {
+                "id": "FREQ",
+                "position": 1
+              },
+              {
+                "id": "REF_AREA",
+                "position": 2
+              }
+            ]
+          }
+        },
+        "id": "BIS_CBPOL"
+      }
+    ],
+    "dataflows": [
+      {
+        "id": "WS_CBPOL",
+        "names": {
+          "en": "Synthetic test dataflow: central bank policy rates"
+        },
+        "version": "1.0"
+      }
+    ]
+  }
+}

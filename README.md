@@ -8,12 +8,13 @@ one interface and one output schema:
 |---|---|---|---|
 | Banca d'Italia, Base Dati Statistica (BDS) | `bdi` | BDS publications (national and territorial series) | A2A export service, documented in the BDS user guide, section 5.2 |
 | European Central Bank, Data Portal | `ecb` | euro-area harmonised series, cross-country comparisons | SDMX 2.1 REST API |
+| Bank for International Settlements, Data Portal | `bis` | policy rates, credit, exchange rates, property and consumer prices, banking and payment statistics for many countries | SDMX REST API v2 |
 
 > **Unofficial.** This project is not affiliated with, endorsed by, or maintained by
-> Banca d'Italia or the European Central Bank. The data belong to Banca d'Italia and the ECB
-> and remain subject to their terms of use (see [Data terms](#data-terms)).
+> Banca d'Italia, the European Central Bank or the Bank for International Settlements. The data belong to
+> their publishers and remain subject to their terms of use (see [Data terms](#data-terms)).
 >
-> *Non ufficiale, non affiliato a Banca d'Italia. I dati sono di Banca d'Italia e della BCE e
+> *Non ufficiale, non affiliato a Banca d'Italia, BCE o BIS. I dati sono dei rispettivi enti e
 > restano soggetti alle loro condizioni d'uso.*
 
 ## Install
@@ -41,7 +42,7 @@ $env:SSL_CERT_FILE = "C:\path\to\ca-bundle.crt"    # Windows PowerShell
 ## First steps
 
 ```sh
-bankit sources                                           # the two sources: bdi, ecb
+bankit sources                                           # the sources: bdi, ecb, bis
 bankit search "loans non-financial corporations" --publication BAM    # find a series key
 bankit get BAM_MIR.M.1300010.MIR5411.9.950.1000.SBI77.EUR.110.997 --start 2024-01 > loans.csv
 ```
@@ -64,11 +65,18 @@ bankit get BAM_MIR.M.1300010.MIR5411.9.950.1000.SBI77.EUR.110.997 --start 2024-0
 
 # the same concept from the ECB (source inferred from the FLOW/KEY form, or forced with ecb:)
 bankit get ecb:MIR/M.IT.B.A2A.A.R.A.2240.EUR.N --start 2024-01
+
+# BIS: list the dataflows, then ask for a series (here the policy rates of the euro area and Italy)
+bankit search "policy rates" --source bis
+bankit get WS_CBPOL/M.XM+IT --start 2024-01
 ```
 
 Keys: BdI series keys start with the publication code (`BAM_`, `MFN_`, `BOP_`, ...);
 ECB keys are `FLOW/KEY` (`MIR/M.IT...`) or the `FLOW.KEY` form used in ECB files.
-A `bdi:` or `ecb:` prefix selects the source explicitly.
+BIS keys are `FLOW/KEY` or `FLOW.KEY` with a dataflow id that starts with `WS_` (`WS_CBPOL/M.IT`);
+the dimensions of each dataflow are listed in the BIS Data Portal. For the BIS, `search` finds
+dataflows, not single series.
+A `bdi:`, `ecb:` or `bis:` prefix selects the source explicitly.
 
 Output columns, identical for every source:
 `source, series_key, period, date, value, title, unit, retrieved_at, source_url`.
@@ -107,7 +115,7 @@ Source-specific parsing stays inside the adapter.
 
 ## Contributing
 
-Contributions are welcome. The project starts from Banca d'Italia and the ECB and aims to grow to
+Contributions are welcome. The project covers Banca d'Italia, the ECB and the BIS, and aims to grow to
 the statistics of other European institutions: national central banks, national statistical
 institutes, Eurostat and other European and international bodies. Each one is one adapter behind
 the same interface and the same output schema, so series from different institutions join on
@@ -137,17 +145,22 @@ Open an issue to discuss a source before a large change.
 - **ECB**: free reuse on condition that the source is quoted (for example "Source: ECB statistics") and that the
   statistics, including metadata, are not modified; modifications by the user must be stated explicitly.
   <https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html>
+- **BIS**: use is unrestricted provided that the BIS is cited as the source, the use is not misleading (for example
+  by implying endorsement or affiliation), and inclusion in a commercial product causes no additional charge to its
+  users. Translations must be marked as not official. The API is provided as is and the BIS may limit or suspend access.
+  <https://data.bis.org/help/legal>
 - The A2A export service of the BDS is described in the BDS user guide; availability and format are decided by
   Banca d'Italia and can change.
 
-This repository holds no Banca d'Italia statistics. Its tests use synthetic files in the format of the BDS export
-and one unmodified ECB extract with its source cited; see `tests/fixtures/SOURCES.txt`.
+This repository holds no Banca d'Italia or BIS statistics. Its tests use synthetic files in the format of the BDS
+export and of the BIS API answers, and one unmodified ECB extract with its source cited; see
+`tests/fixtures/SOURCES.txt`.
 
 ## Development
 
 ```sh
 uv run --extra test pytest                  # offline: synthetic and recorded fixtures, network blocked
-uv run --extra test pytest -m live          # opt-in: compares the live BdI and ECB sources
+uv run --extra test pytest -m live          # opt-in: compares the live BdI, ECB and BIS sources
 uv run python scripts/make_fixtures.py      # regenerate the synthetic BdI fixtures
 uv run python scripts/record_fixtures.py    # re-record the ECB fixture from the live source
 ```
@@ -156,4 +169,4 @@ The offline tests run on every push and pull request in GitHub Actions (`.github
 
 ## License
 
-MIT, see `LICENSE`. The licence covers the code of this repository, not the data of Banca d'Italia or the ECB.
+MIT, see `LICENSE`. The licence covers the code of this repository, not the data of Banca d'Italia, the ECB or the BIS.
